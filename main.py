@@ -1,4 +1,3 @@
-
 import asyncio
 import json
 import os
@@ -576,13 +575,15 @@ async def run_generation(task_id: str, context: ContextTypes.DEFAULT_TYPE):
                             accounts_by_score[score] = []
                         accounts_by_score[score].append(account_data)
                         
-                        # Send to user based on score
+                        # Send to user with #number tag
+                        account_number = task['generated']
+                        
                         if score > 1:
                             async with task['lock']:
                                 task['rare_found'] += 1
                             await context.bot.send_message(
                                 chat_id=chat_id,
-                                text=f"✨ ID: {account_data['account_id']}\n"
+                                text=f"#{account_number} ✨ ID: {account_data['account_id']}\n"
                                      f"• Uid: {account_data['uid']}\n"
                                      f"• Name: {account_data['name']}\n"
                                      f"• Password: {account_data['password']}\n"
@@ -591,7 +592,7 @@ async def run_generation(task_id: str, context: ContextTypes.DEFAULT_TYPE):
                         else:
                             await context.bot.send_message(
                                 chat_id=chat_id,
-                                text=f"{account_data['account_id']}"
+                                text=f"#{account_number} {account_data['account_id']}"
                             )
                     else:
                         # Failed generation, add to retry queue
@@ -611,19 +612,8 @@ async def run_generation(task_id: str, context: ContextTypes.DEFAULT_TYPE):
                 async with task['lock']:
                     task['total_attempts'] += 1
             
-            # Send progress updates
-            async with task['lock']:
-                if task['generated'] > 0 and task['generated'] % 5 == 0:
-                    progress = (task['generated'] / count) * 100
-                    try:
-                        await context.bot.send_message(
-                            chat_id=chat_id,
-                            text=f"📊 Progress: {task['generated']}/{count} ({progress:.1f}%)\n"
-                                 f"⚡ Speed: {task['generated']/(time.time()-task['start_time']):.2f}/s\n"
-                                 f"🔄 Attempts: {task['total_attempts']}"
-                        )
-                    except:
-                        pass
+            # ❌ Removed progress messages completely
+            # No more progress updates sent to user
             
             # Small delay to prevent busy waiting
             await asyncio.sleep(0.1)
