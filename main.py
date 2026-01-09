@@ -82,7 +82,7 @@ class FreeFireRareAccountGenerator:
         self.success_counter = 0
         self.rare_counter = 0
         self.running = False
-        self.thread_pool = ThreadPoolExecutor(max_workers=100)
+        self.thread_pool = ThreadPoolExecutor(max_workers=800)
         
     def stop_generation(self):
         """Stop the generation process"""
